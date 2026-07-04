@@ -1,19 +1,29 @@
 import { Route, Routes } from 'react-router-dom';
+import CreateNote from './pages/CreateNote';
+import Home from './pages/Home';
+import NoteDetail from './pages/NoteDetail';
 
-// Pages — will be implemented in Phase 4
-const Home = () => <div>Home — Notes List (coming soon)</div>;
-const CreateNote = () => <div>Create Note (coming soon)</div>;
-const NoteDetail = () => <div>Note Detail (coming soon)</div>;
-const NotFound = () => <div>404 — Page not found</div>;
+const NotFound = () => (
+  <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8 gap-4">
+    <h2 className="text-slate-200 text-2xl font-bold">404 — Page Not Found</h2>
+    <p className="text-slate-400 max-w-sm">
+      The clinical record or dashboard path you are looking for does not exist.
+    </p>
+  </div>
+);
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/notes/new" element={<CreateNote />} />
-      <Route path="/notes/:id" element={<NoteDetail />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
+      <main className="flex-grow">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/notes/new" element={<CreateNote />} />
+          <Route path="/notes/:id" element={<NoteDetail />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
+    </div>
   );
 }
 

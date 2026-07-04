@@ -1,7 +1,7 @@
 import { Args, ID, Query, Resolver } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
 import { Patient } from './entities/patient.entity';
-import type { PatientsService } from './patients.service';
+import { PatientsService } from './patients.service';
 
 @SkipThrottle() // Read-only — no rate limiting needed on queries
 @Resolver(() => Patient)

@@ -1,8 +1,6 @@
 # ─── Stage 1: Build ───────────────────────────────────────────────────────────
 FROM node:22-alpine AS builder
 
-RUN corepack enable && corepack prepare yarn@stable --activate
-
 WORKDIR /app
 
 COPY package.json yarn.lock ./
@@ -13,8 +11,6 @@ RUN yarn build
 
 # ─── Stage 2: Production ──────────────────────────────────────────────────────
 FROM node:22-alpine AS production
-
-RUN corepack enable && corepack prepare yarn@stable --activate
 
 WORKDIR /app
 

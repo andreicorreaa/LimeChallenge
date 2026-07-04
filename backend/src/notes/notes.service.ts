@@ -1,7 +1,7 @@
 import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import type { Repository } from 'typeorm';
-import type { AiService } from '../ai/ai.service';
+import { AiService } from '../ai/ai.service';
 import { NoteInputType } from '../common/enums/note-input-type.enum';
 import { NoteStatus } from '../common/enums/note-status.enum';
 import { type FileUpload, streamToBuffer } from '../common/types/file-upload.type';

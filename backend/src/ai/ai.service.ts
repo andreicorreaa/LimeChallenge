@@ -4,7 +4,7 @@ import * as path from 'node:path';
 import { GoogleGenerativeAI, type Part } from '@google/generative-ai';
 import { FileState, GoogleAIFileManager } from '@google/generative-ai/server';
 import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
-import type { ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AiService {

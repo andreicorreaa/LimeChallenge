@@ -192,6 +192,11 @@
   dependencies:
     xss "^1.0.8"
 
+"@as-integrations/express5@^1.1.2":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@as-integrations/express5/-/express5-1.1.2.tgz#5c5b207b8e457bbd546e9b20898d0b1f4a478480"
+  integrity sha512-BxfwtcWNf2CELDkuPQxi5Zl3WqY/dQVJYafeCBOGoFQjv5M0fjhxmAFZ9vKx/5YKKNeok4UY6PkFbHzmQrdxIA==
+
 "@as-integrations/fastify@^2.1.1":
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/@as-integrations/fastify/-/fastify-2.1.1.tgz#7662d7b39732fb3d1fc58bbe4ca599676ce1acb9"

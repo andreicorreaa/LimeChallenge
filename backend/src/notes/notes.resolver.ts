@@ -2,9 +2,9 @@ import { Args, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs';
 import type { FileUpload } from '../common/types/file-upload.type';
-import type { CreateNoteInput } from './dto/create-note.input';
+import { CreateNoteInput } from './dto/create-note.input';
 import { Note } from './entities/note.entity';
-import type { NotesService } from './notes.service';
+import { NotesService } from './notes.service';
 
 @Resolver(() => Note)
 export class NotesResolver {
@@ -46,7 +46,7 @@ export class NotesResolver {
       nullable: true,
       description: 'Audio file upload (required when inputType = AUDIO)',
     })
-    audioFile?: Promise<FileUpload>,
+    audioFile?: Promise<FileUpload> | undefined,
   ): Promise<Note> {
     return this.notesService.create(input, audioFile);
   }

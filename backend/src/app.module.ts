@@ -11,6 +11,7 @@ import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs';
 import { LoggerModule } from 'nestjs-pino';
 
 import { AiModule } from './ai/ai.module';
+import { GqlThrottlerGuard } from './common/guards/gql-throttler.guard';
 import { DatabaseModule } from './database/database.module';
 import { HealthModule } from './health/health.module';
 import { NotesModule } from './notes/notes.module';
@@ -96,10 +97,10 @@ import { StorageModule } from './storage/storage.module';
     DatabaseModule,
   ],
   providers: [
-    // Apply ThrottlerGuard globally to all resolvers and REST endpoints
+    // Apply GqlThrottlerGuard globally to all resolvers and REST endpoints
     {
       provide: APP_GUARD,
-      useClass: ThrottlerGuard,
+      useClass: GqlThrottlerGuard,
     },
   ],
 })

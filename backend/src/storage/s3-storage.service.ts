@@ -2,7 +2,7 @@ import * as path from 'node:path';
 import { PutObjectCommand, type PutObjectCommandInput, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Injectable, Logger } from '@nestjs/common';
-import type { ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import type { IStorageService } from './interfaces/storage.interface';
 
@@ -13,15 +13,19 @@ export class S3StorageService implements IStorageService {
   private readonly bucket: string;
 
   constructor(private readonly config: ConfigService) {
-    this.bucket = this.config.getOrThrow<string>('AWS_S3_BUCKET');
+    this.bucket = this.config.get<string>('AWS_S3_BUCKET') ?? '';
+    const region = this.config.get<string>('AWS_REGION', 'us-east-1');
+    const accessKeyId = this.config.get<string>('AWS_ACCESS_KEY_ID') ?? '';
+    const secretAccessKey = this.config.get<string>('AWS_SECRET_ACCESS_KEY') ?? '';
+
     this.s3Client = new S3Client({
-      region: this.config.get<string>('AWS_REGION', 'us-east-1'),
+      region,
       credentials: {
-        accessKeyId: this.config.getOrThrow<string>('AWS_ACCESS_KEY_ID'),
-        secretAccessKey: this.config.getOrThrow<string>('AWS_SECRET_ACCESS_KEY'),
+        accessKeyId,
+        secretAccessKey,
       },
     });
-    this.logger.log(`S3 storage configured: bucket=${this.bucket}`);
+    this.logger.log(`S3 storage instantiated (bucket: "${this.bucket}")`);
   }
 
   async uploadFile(buffer: Buffer, filename: string, mimetype: string): Promise<string> {
