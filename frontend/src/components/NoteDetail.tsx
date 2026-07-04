@@ -1,5 +1,6 @@
 import { Box, Card, CardContent, Typography } from '@mui/material';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import type { Note } from '../types';
 
 interface NoteDetailProps {
@@ -7,6 +8,7 @@ interface NoteDetailProps {
 }
 
 export const NoteDetail: React.FC<NoteDetailProps> = ({ note }) => {
+  const { i18n } = useTranslation();
   const isAudio = note.inputType === 'audio';
 
   return (
@@ -18,13 +20,13 @@ export const NoteDetail: React.FC<NoteDetailProps> = ({ note }) => {
             variant="h6"
             className="text-slate-100 font-semibold mb-3 border-b border-slate-700 pb-2"
           >
-            {isAudio ? 'Audio Transcript' : 'Raw Input Note'}
+            {isAudio ? i18n.t('noteDetail.audioTranscript') : i18n.t('noteDetail.rawInput')}
           </Typography>
 
           {isAudio && note.audioFilePath && (
             <Box className="mb-4 bg-slate-900/50 p-3 rounded-lg border border-slate-700/30">
               <Typography variant="body2" className="text-slate-400 mb-2 font-medium">
-                Original Audio Playback:
+                {i18n.t('noteDetail.audioPlayback')}
               </Typography>
               {/* biome-ignore lint/a11y/useMediaCaption: Dynamic clinical audio playback, transcription is displayed below */}
               <audio
@@ -44,8 +46,8 @@ export const NoteDetail: React.FC<NoteDetailProps> = ({ note }) => {
             className="text-slate-300 whitespace-pre-wrap leading-relaxed"
           >
             {isAudio
-              ? note.transcribedText || 'Awaiting transcription...'
-              : note.rawText || 'No text provided.'}
+              ? note.transcribedText || i18n.t('noteDetail.soapLoading')
+              : note.rawText || i18n.t('noteDetail.noSoap')}
           </Typography>
         </CardContent>
       </Card>
@@ -57,20 +59,20 @@ export const NoteDetail: React.FC<NoteDetailProps> = ({ note }) => {
             variant="h6"
             className="text-cyan-400 font-semibold mb-3 border-b border-slate-700 pb-2"
           >
-            Clinical SOAP Note Summary (AI Generated)
+            {i18n.t('noteDetail.soapTitle')}
           </Typography>
 
           {note.status === 'processing' ? (
             <Typography variant="body1" className="text-amber-400 animate-pulse font-medium">
-              AI Scribe is parsing clinical findings and generating SOAP summary...
+              {i18n.t('noteDetail.soapLoading')}
             </Typography>
           ) : note.status === 'error' ? (
             <Typography variant="body1" className="text-rose-400 font-medium">
-              Failed to generate AI SOAP summary. Please verify raw input or check logs.
+              {i18n.t('noteDetail.soapError')}
             </Typography>
           ) : (
             <Box className="prose prose-invert max-w-none text-slate-300 whitespace-pre-wrap leading-relaxed">
-              {note.soapSummary || 'No SOAP summary generated.'}
+              {note.soapSummary || i18n.t('noteDetail.noSoap')}
             </Box>
           )}
         </CardContent>

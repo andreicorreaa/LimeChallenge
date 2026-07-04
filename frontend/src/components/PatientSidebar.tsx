@@ -8,6 +8,7 @@ import {
   Typography,
 } from '@mui/material';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import type { Patient } from '../types';
 
 interface PatientSidebarProps {
@@ -15,6 +16,7 @@ interface PatientSidebarProps {
 }
 
 export const PatientSidebar: React.FC<PatientSidebarProps> = ({ patient }) => {
+  const { i18n } = useTranslation();
   const [year, month, day] = patient.dateOfBirth.split('-');
   const formattedDOB = new Date(Number(year), Number(month) - 1, Number(day)).toLocaleDateString(
     undefined,
@@ -32,12 +34,14 @@ export const PatientSidebar: React.FC<PatientSidebarProps> = ({ patient }) => {
           variant="h6"
           className="text-cyan-400 font-semibold mb-4 uppercase tracking-wider text-sm"
         >
-          Patient Demographics
+          {i18n.t('demographics.title')}
         </Typography>
         <List className="p-0">
           <ListItem className="px-0 py-2 flex flex-col items-start">
             <ListItemText
-              primary={<span className="text-slate-400 text-xs">Full Name</span>}
+              primary={
+                <span className="text-slate-400 text-xs">{i18n.t('demographics.fullName')}</span>
+              }
               secondary={
                 <span className="text-slate-200 text-base font-medium">
                   {patient.firstName} {patient.lastName}
@@ -49,7 +53,7 @@ export const PatientSidebar: React.FC<PatientSidebarProps> = ({ patient }) => {
           <Divider className="bg-slate-700/50" />
           <ListItem className="px-0 py-2 flex flex-col items-start">
             <ListItemText
-              primary={<span className="text-slate-400 text-xs">Date of Birth</span>}
+              primary={<span className="text-slate-400 text-xs">{i18n.t('demographics.dob')}</span>}
               secondary={<span className="text-slate-200 text-sm font-medium">{formattedDOB}</span>}
               className="m-0"
             />
@@ -57,7 +61,7 @@ export const PatientSidebar: React.FC<PatientSidebarProps> = ({ patient }) => {
           <Divider className="bg-slate-700/50" />
           <ListItem className="px-0 py-2 flex flex-col items-start">
             <ListItemText
-              primary={<span className="text-slate-400 text-xs">Medical Record Number (MRN)</span>}
+              primary={<span className="text-slate-400 text-xs">{i18n.t('demographics.mrn')}</span>}
               secondary={<span className="text-cyan-400 text-sm font-semibold">{patient.mrn}</span>}
               className="m-0"
             />
@@ -65,7 +69,9 @@ export const PatientSidebar: React.FC<PatientSidebarProps> = ({ patient }) => {
           <Divider className="bg-slate-700/50" />
           <ListItem className="px-0 py-2 flex flex-col items-start">
             <ListItemText
-              primary={<span className="text-slate-400 text-xs">Patient System ID</span>}
+              primary={
+                <span className="text-slate-400 text-xs">{i18n.t('demographics.sysId')}</span>
+              }
               secondary={
                 <span className="text-slate-400 text-xs font-mono break-all">{patient.id}</span>
               }

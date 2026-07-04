@@ -1,5 +1,6 @@
 import { Box, Card, CardContent, Typography } from '@mui/material';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import type { Note } from '../types';
 import { StatusBadge } from './StatusBadge';
@@ -9,6 +10,7 @@ interface NoteCardProps {
 }
 
 export const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
+  const { t } = useTranslation();
   const formattedDate = new Date(Number(note.createdAt) || note.createdAt).toLocaleDateString(
     undefined,
     {
@@ -49,8 +51,8 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
             >
               {previewText ||
                 (note.status === 'processing'
-                  ? 'Generating note content...'
-                  : 'No preview available.')}
+                  ? t('noteForm.submitLoading')
+                  : t('noteDetail.noSoap'))}
             </Typography>
           </div>
 

@@ -2,6 +2,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, Button, Container, Typography } from '@mui/material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { createNote } from '../api/notes';
 import { getPatients } from '../api/patients';
@@ -9,6 +10,7 @@ import { LoadingSkeleton } from '../components/LoadingSkeleton';
 import { NoteForm } from '../components/NoteForm';
 
 export const CreateNote: React.FC = () => {
+  const { i18n } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -48,7 +50,7 @@ export const CreateNote: React.FC = () => {
             className="text-slate-400 hover:text-slate-200 capitalize font-medium"
             disabled={isPending}
           >
-            Back to Dashboard
+            {i18n.t('dashboard.backBtn')}
           </Button>
         </Link>
       </Box>
@@ -61,7 +63,7 @@ export const CreateNote: React.FC = () => {
       ) : isPatientsError ? (
         <Box className="bg-rose-950/20 border border-rose-500/30 p-6 rounded-xl text-center max-w-2xl mx-auto w-full">
           <Typography variant="body1" className="text-rose-400 font-medium">
-            Error loading patients: {(patientsError as Error).message}
+            {i18n.t('dashboard.errorMsgPatients', { message: (patientsError as Error).message })}
           </Typography>
         </Box>
       ) : patients ? (

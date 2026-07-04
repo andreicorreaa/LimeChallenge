@@ -1,5 +1,6 @@
 import { Chip } from '@mui/material';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import type { NoteInputType, NoteStatus } from '../types';
 
 interface StatusBadgeProps {
@@ -8,6 +9,8 @@ interface StatusBadgeProps {
 }
 
 export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, type }) => {
+  const { i18n } = useTranslation();
+
   if (type) {
     const isAudio = type === 'audio';
     return (
@@ -29,13 +32,13 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, type }) => {
 
     if (status === 'processing') {
       colorClass = 'bg-amber-950/40 text-amber-400 border-amber-500/30 animate-pulse';
-      label = 'Processing';
+      label = i18n.t('noteDetail.processing');
     } else if (status === 'ready') {
       colorClass = 'bg-emerald-950/40 text-emerald-400 border-emerald-500/30';
-      label = 'Ready';
+      label = i18n.t('noteDetail.ready');
     } else if (status === 'error') {
       colorClass = 'bg-rose-950/40 text-rose-400 border-rose-500/30';
-      label = 'Error';
+      label = i18n.t('noteDetail.error');
     }
 
     return (

@@ -12,9 +12,12 @@ const NotFound = () => (
   </div>
 );
 
+import Header from './components/Header';
+
 function App() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
+      <Header />
       <main className="flex-grow">
         <Routes>
           <Route path="/" element={<Home />} />

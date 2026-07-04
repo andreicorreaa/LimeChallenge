@@ -11,6 +11,7 @@ import {
   Typography,
 } from '@mui/material';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { CreateNotePayload, NoteInputType, Patient } from '../types';
 import { PatientSelect } from './PatientSelect';
 
@@ -27,6 +28,7 @@ export const NoteForm: React.FC<NoteFormProps> = ({
   isSubmitting,
   submitError,
 }) => {
+  const { i18n } = useTranslation();
   const [patientId, setPatientId] = useState('');
   const [inputType, setInputType] = useState<NoteInputType>('text');
   const [rawText, setRawText] = useState('');
@@ -57,14 +59,14 @@ export const NoteForm: React.FC<NoteFormProps> = ({
     <Card className="bg-slate-800/40 border border-slate-700/50 rounded-xl shadow-lg max-w-2xl mx-auto">
       <CardContent className="p-6">
         <Typography variant="h5" className="text-slate-100 font-semibold mb-6">
-          Create Clinical Note
+          {i18n.t('noteForm.title')}
         </Typography>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           {/* Patient Selection */}
           <Box>
             <Typography variant="subtitle2" className="text-slate-400 mb-2 font-medium">
-              Select Patient Record
+              {i18n.t('noteForm.selectPatient')}
             </Typography>
             <PatientSelect
               patients={patients}
@@ -77,7 +79,7 @@ export const NoteForm: React.FC<NoteFormProps> = ({
           {/* Input Type Selector */}
           <Box>
             <Typography variant="subtitle2" className="text-slate-400 mb-2 font-medium">
-              Input Mode
+              {i18n.t('noteForm.inputMode')}
             </Typography>
             <RadioGroup
               row
@@ -88,13 +90,13 @@ export const NoteForm: React.FC<NoteFormProps> = ({
               <FormControlLabel
                 value="text"
                 control={<Radio className="text-cyan-500" />}
-                label="Typed Text"
+                label={i18n.t('noteForm.modeText')}
                 disabled={isSubmitting}
               />
               <FormControlLabel
                 value="audio"
                 control={<Radio className="text-cyan-500" />}
-                label="Audio Recording Upload"
+                label={i18n.t('noteForm.modeAudio')}
                 disabled={isSubmitting}
               />
             </RadioGroup>
@@ -104,14 +106,14 @@ export const NoteForm: React.FC<NoteFormProps> = ({
           {inputType === 'text' ? (
             <Box>
               <Typography variant="subtitle2" className="text-slate-400 mb-2 font-medium">
-                Clinical Details / Typed Note
+                {i18n.t('noteForm.modeText')}
               </Typography>
               <TextField
                 fullWidth
                 multiline
                 rows={6}
                 variant="outlined"
-                placeholder="Enter patient complaints, vitals, history, or assessment findings..."
+                placeholder={i18n.t('noteForm.typedPlaceholder')}
                 value={rawText}
                 onChange={(e) => setRawText(e.target.value)}
                 disabled={isSubmitting}
@@ -124,7 +126,7 @@ export const NoteForm: React.FC<NoteFormProps> = ({
           ) : (
             <Box>
               <Typography variant="subtitle2" className="text-slate-400 mb-2 font-medium">
-                Select Audio Recording (.mp3, .wav, .m4a)
+                {i18n.t('noteForm.audioLabel')}
               </Typography>
               <Box className="flex flex-col gap-3">
                 <Button
@@ -133,7 +135,9 @@ export const NoteForm: React.FC<NoteFormProps> = ({
                   disabled={isSubmitting}
                   className="border-slate-700 hover:border-cyan-500 text-slate-300 py-3 rounded-lg capitalize w-full"
                 >
-                  {audioFile ? `Change File: ${audioFile.name}` : 'Upload Audio File'}
+                  {audioFile
+                    ? `${i18n.t('noteForm.changeBtn')}: ${audioFile.name}`
+                    : i18n.t('noteForm.uploadBtn')}
                   <input type="file" accept="audio/*" hidden onChange={handleFileChange} />
                 </Button>
                 {audioFile && (
@@ -148,7 +152,7 @@ export const NoteForm: React.FC<NoteFormProps> = ({
           {/* Error Message */}
           {submitError && (
             <Typography variant="body2" className="text-rose-400 font-medium text-center">
-              Error: {submitError}
+              {i18n.t('noteForm.validationError', { message: submitError })}
             </Typography>
           )}
 
@@ -162,10 +166,10 @@ export const NoteForm: React.FC<NoteFormProps> = ({
             {isSubmitting ? (
               <Box className="flex items-center gap-3 justify-center">
                 <CircularProgress size={20} className="text-slate-950" />
-                <span>AI Scribe is parsing findings...</span>
+                <span>{i18n.t('noteForm.submitLoading')}</span>
               </Box>
             ) : (
-              <span>Process Note</span>
+              <span>{i18n.t('noteForm.submitBtn')}</span>
             )}
           </Button>
         </form>

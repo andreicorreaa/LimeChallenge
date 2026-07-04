@@ -3,6 +3,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { Box, Button, Container, Grid2, Typography } from '@mui/material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { deleteNote, getNote } from '../api/notes';
 import { LoadingSkeleton } from '../components/LoadingSkeleton';
@@ -10,6 +11,7 @@ import { NoteDetail } from '../components/NoteDetail';
 import { PatientSidebar } from '../components/PatientSidebar';
 
 export const NoteDetailContainer: React.FC = () => {
+  const { i18n } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -44,7 +46,7 @@ export const NoteDetailContainer: React.FC = () => {
   });
 
   const handleDelete = () => {
-    if (window.confirm('Are you sure you want to delete this note?')) {
+    if (window.confirm(i18n.t('dashboard.deleteConfirm'))) {
       performDelete();
     }
   };
@@ -69,7 +71,7 @@ export const NoteDetailContainer: React.FC = () => {
           startIcon={<ArrowBackIcon />}
           className="text-slate-400 hover:text-slate-200 capitalize font-medium p-0 hover:bg-transparent"
         >
-          Back to Clinic Dashboard
+          {i18n.t('dashboard.backBtn')}
         </Button>
 
         {note && (
@@ -81,7 +83,7 @@ export const NoteDetailContainer: React.FC = () => {
             startIcon={<DeleteIcon />}
             className="border-rose-500/50 hover:border-rose-500 text-rose-400 hover:bg-rose-950/20 capitalize font-semibold rounded-lg px-4"
           >
-            Delete Note
+            {i18n.t('dashboard.deleteBtn')}
           </Button>
         )}
       </Box>
@@ -92,7 +94,7 @@ export const NoteDetailContainer: React.FC = () => {
       ) : isError ? (
         <Box className="bg-rose-950/20 border border-rose-500/30 p-6 rounded-xl text-center">
           <Typography variant="body1" className="text-rose-400 font-medium">
-            Error loading note detail: {(error as Error).message}
+            {i18n.t('dashboard.errorMsgDetail', { message: (error as Error).message })}
           </Typography>
         </Box>
       ) : note ? (
@@ -101,7 +103,7 @@ export const NoteDetailContainer: React.FC = () => {
           <Grid2 size={{ xs: 12, md: 8 }} className="flex flex-col gap-4">
             <Box className="flex items-center gap-3">
               <Typography variant="h5" className="text-slate-100 font-bold">
-                Clinical Record Detail
+                {i18n.t('dashboard.noteDetailTitle')}
               </Typography>
               <span className="text-slate-500">•</span>
               <Typography variant="body2" className="text-slate-400">
@@ -119,7 +121,7 @@ export const NoteDetailContainer: React.FC = () => {
       ) : (
         <Box className="text-center p-12">
           <Typography variant="body1" className="text-slate-400">
-            Note not found.
+            {i18n.t('dashboard.noteNotFound')}
           </Typography>
         </Box>
       )}

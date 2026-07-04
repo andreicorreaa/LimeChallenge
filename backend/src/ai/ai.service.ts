@@ -18,7 +18,7 @@ export class AiService {
     this.genAI = new GoogleGenerativeAI(apiKey);
     this.fileManager = new GoogleAIFileManager(apiKey);
     this.model = this.genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.5-flash',
     });
   }
 
@@ -75,6 +75,7 @@ export class AiService {
       this.logger.log('Transcription complete');
       return transcription;
     } catch (error) {
+      console.error('TRANSCRIPTION EXCEPTION:', error);
       this.logger.error('Transcription failed', error);
       if (error instanceof InternalServerErrorException) throw error;
       throw new InternalServerErrorException('Failed to transcribe audio. Please try again.');
@@ -110,6 +111,7 @@ Return the SOAP note in clean markdown format with the four sections clearly lab
       this.logger.log('SOAP summary generated');
       return summary;
     } catch (error) {
+      console.error('SOAP GENERATION EXCEPTION:', error);
       this.logger.error('SOAP generation failed', error);
       throw new InternalServerErrorException('Failed to generate SOAP summary. Please try again.');
     }

@@ -77,7 +77,7 @@ describe('Frontend Integrated Pages', () => {
 
       // Verify dropdown loaded patients list
       await waitFor(() => {
-        expect(screen.getByLabelText('Select Patient')).toBeInTheDocument();
+        expect(screen.getByLabelText('Select Patient Record')).toBeInTheDocument();
       });
 
       // Fill form values
