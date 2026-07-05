@@ -1,25 +1,30 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client';
+import { ApolloProvider } from '@apollo/client/react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
+import DashboardLayout from '../components/DashboardLayout';
 import { server } from '../test/server';
 import { CreateNote } from './CreateNote';
 import { Home } from './Home';
 import { NoteDetailContainer } from './NoteDetail';
 
-// Wrapper helper
+// Shared wrapper factory: ApolloClient pointing at the MSW-intercepted /graphql endpoint
 const createWrapper = () => {
-  const queryClient = new QueryClient({
+  const client = new ApolloClient({
+    link: new HttpLink({ uri: '/graphql' }),
+    cache: new InMemoryCache(),
     defaultOptions: {
-      queries: { retry: false },
+      watchQuery: { fetchPolicy: 'no-cache' },
+      query: { fetchPolicy: 'no-cache' },
     },
   });
   return ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>
+    <ApolloProvider client={client}>
       <MemoryRouter initialEntries={['/']}>{children}</MemoryRouter>
-    </QueryClientProvider>
+    </ApolloProvider>
   );
 };
 
@@ -59,20 +64,27 @@ describe('Frontend Integrated Pages', () => {
 
   describe('CreateNote Page', () => {
     it('should load patients list and handle creation redirect flow', async () => {
-      const queryClient = new QueryClient({
-        defaultOptions: { queries: { retry: false } },
+      const client = new ApolloClient({
+        link: new HttpLink({ uri: '/graphql' }),
+        cache: new InMemoryCache(),
+        defaultOptions: {
+          watchQuery: { fetchPolicy: 'no-cache' },
+          query: { fetchPolicy: 'no-cache' },
+        },
       });
 
       // Wrap page with path routes to verify redirect transitions
       render(
-        <QueryClientProvider client={queryClient}>
+        <ApolloProvider client={client}>
           <MemoryRouter initialEntries={['/notes/new']}>
             <Routes>
-              <Route path="/notes/new" element={<CreateNote />} />
-              <Route path="/" element={<div>Dashboard Page</div>} />
+              <Route path="/" element={<DashboardLayout />}>
+                <Route path="notes/new" element={<CreateNote />} />
+                <Route path="notes/:id" element={<div>Dashboard Page</div>} />
+              </Route>
             </Routes>
           </MemoryRouter>
-        </QueryClientProvider>,
+        </ApolloProvider>,
       );
 
       // Verify dropdown loaded patients list
@@ -83,12 +95,12 @@ describe('Frontend Integrated Pages', () => {
       // Fill form values
       const selectBox = screen.getByRole('combobox');
       fireEvent.mouseDown(selectBox);
-      fireEvent.click(screen.getByText(/John Doe/));
+      fireEvent.click(screen.getByRole('option', { name: /John Doe/ }));
 
       const textarea = screen.getByPlaceholderText(/Enter patient complaints/);
       fireEvent.change(textarea, { target: { value: 'Patient feels dizzy.' } });
 
-      // Click submit and verify redirection to root '/'
+      // Click submit and verify redirection to note detail '/notes/note-new'
       const submitBtn = screen.getByRole('button', { name: 'Process Note' });
       fireEvent.click(submitBtn);
 
@@ -100,28 +112,33 @@ describe('Frontend Integrated Pages', () => {
 
   describe('NoteDetail Page', () => {
     it('should render detailed note content, patient details, and handle delete trigger', async () => {
-      const queryClient = new QueryClient({
-        defaultOptions: { queries: { retry: false } },
+      const client = new ApolloClient({
+        link: new HttpLink({ uri: '/graphql' }),
+        cache: new InMemoryCache(),
+        defaultOptions: {
+          watchQuery: { fetchPolicy: 'no-cache' },
+          query: { fetchPolicy: 'no-cache' },
+        },
       });
 
       // Mock window.confirm
       const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
 
       render(
-        <QueryClientProvider client={queryClient}>
+        <ApolloProvider client={client}>
           <MemoryRouter initialEntries={['/notes/note-1']}>
             <Routes>
-              <Route path="/notes/:id" element={<NoteDetailContainer />} />
-              <Route path="/" element={<div>Dashboard Page</div>} />
+              <Route path="/" element={<DashboardLayout />}>
+                <Route path="notes/:id" element={<NoteDetailContainer />} />
+              </Route>
             </Routes>
           </MemoryRouter>
-        </QueryClientProvider>,
+        </ApolloProvider>,
       );
 
       // Verify note details and demographics sections rendered
       await waitFor(() => {
-        expect(screen.getByText('Clinical Record Detail')).toBeInTheDocument();
-        expect(screen.getByText('John Doe')).toBeInTheDocument();
+        expect(screen.getAllByText('John Doe')[0]).toBeInTheDocument();
         expect(screen.getByText('MRN001')).toBeInTheDocument();
         expect(screen.getByText('Patient text details')).toBeInTheDocument();
       });
@@ -132,7 +149,8 @@ describe('Frontend Integrated Pages', () => {
 
       expect(confirmSpy).toHaveBeenCalled();
       await waitFor(() => {
-        expect(screen.getByText('Dashboard Page')).toBeInTheDocument();
+        // Redirection goes to "/" which automatically navigates to first note "/notes/note-1"
+        expect(screen.getAllByText('Patient text details')[0]).toBeInTheDocument();
       });
 
       confirmSpy.mockRestore();

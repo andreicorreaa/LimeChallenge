@@ -1,6 +1,8 @@
+import { ApolloClient, InMemoryCache } from '@apollo/client';
+import { ApolloProvider } from '@apollo/client/react';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import UploadHttpLink from 'apollo-upload-client/UploadHttpLink.mjs';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
@@ -29,11 +31,19 @@ const darkTheme = createTheme({
   },
 });
 
-const queryClient = new QueryClient({
+// Apollo Client with upload support (multipart spec for audio files)
+const apolloClient = new ApolloClient({
+  link: new UploadHttpLink({
+    uri: '/graphql',
+    headers: {
+      // Required by Apollo Server CSRF protection when sending multipart requests
+      'Apollo-Require-Preflight': 'true',
+    },
+  }),
+  cache: new InMemoryCache(),
   defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60, // 1 minute
-      retry: 1,
+    watchQuery: {
+      fetchPolicy: 'cache-and-network',
     },
   },
 });
@@ -45,13 +55,13 @@ if (!rootElement) {
 
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
+    <ApolloProvider client={apolloClient}>
       <ThemeProvider theme={darkTheme}>
         <CssBaseline />
         <BrowserRouter>
           <App />
         </BrowserRouter>
       </ThemeProvider>
-    </QueryClientProvider>
+    </ApolloProvider>
   </React.StrictMode>,
 );

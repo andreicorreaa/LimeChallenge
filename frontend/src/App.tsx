@@ -1,6 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
+import DashboardLayout from './components/DashboardLayout';
 import CreateNote from './pages/CreateNote';
-import Home from './pages/Home';
 import NoteDetail from './pages/NoteDetail';
 
 const NotFound = () => (
@@ -12,17 +12,15 @@ const NotFound = () => (
   </div>
 );
 
-import Header from './components/Header';
-
 function App() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
-      <Header />
       <main className="flex-grow">
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/notes/new" element={<CreateNote />} />
-          <Route path="/notes/:id" element={<NoteDetail />} />
+          <Route path="/" element={<DashboardLayout />}>
+            <Route path="notes/new" element={<CreateNote />} />
+            <Route path="notes/:id" element={<NoteDetail />} />
+          </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

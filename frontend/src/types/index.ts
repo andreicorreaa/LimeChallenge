@@ -18,10 +18,10 @@ export interface Note {
   patientId: string;
   patient?: Patient;
   inputType: NoteInputType;
-  rawText?: string;
-  audioFilePath?: string;
-  transcribedText?: string;
-  soapSummary?: string;
+  rawText?: string | null;
+  audioFilePath?: string | null;
+  transcribedText?: string | null;
+  soapSummary?: string | null;
   status: NoteStatus;
   createdAt: string;
   updatedAt: string;

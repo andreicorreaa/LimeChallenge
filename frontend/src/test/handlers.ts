@@ -26,6 +26,8 @@ export const mockNotes: Note[] = [
     patientId: 'pat-1',
     inputType: 'text',
     rawText: 'Patient text details',
+    audioFilePath: null,
+    transcribedText: null,
     status: 'ready',
     soapSummary:
       'Subjective: complains of cough\nObjective: clear chest\nAssessment: acute bronchitis\nPlan: rest',
@@ -37,6 +39,8 @@ export const mockNotes: Note[] = [
     id: 'note-2',
     patientId: 'pat-2',
     inputType: 'audio',
+    rawText: null,
+    audioFilePath: null,
     transcribedText: 'Spoken transcript text',
     status: 'processing',
     createdAt: '2026-07-04T13:00:00.000Z',
@@ -105,7 +109,7 @@ export const handlers = [
 
     // 5. mutation CreateNote
     if (query.includes('mutation CreateNote')) {
-      const isAudio = variables.input.inputType === 'audio';
+      const isAudio = variables.input.inputType?.toLowerCase() === 'audio';
       const newNote: Note = {
         id: 'note-new',
         patientId: variables.input.patientId,

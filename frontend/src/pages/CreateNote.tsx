@@ -1,79 +1,126 @@
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { Box, Button, Container, Typography } from '@mui/material';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import React, { useState } from 'react';
+import { type OperationVariables } from '@apollo/client';
+import { type QueryRef, useBackgroundQuery, useMutation, useReadQuery } from '@apollo/client/react';
+import { Box, Container, Typography } from '@mui/material';
+import React, { Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate } from 'react-router-dom';
-import { createNote } from '../api/notes';
-import { getPatients } from '../api/patients';
+import { useNavigate } from 'react-router-dom';
 import { LoadingSkeleton } from '../components/LoadingSkeleton';
 import { NoteForm } from '../components/NoteForm';
+import { CREATE_NOTE, GET_NOTES, GET_PATIENTS, type GetPatientsData } from '../graphql/queries';
+import type { CreateNotePayload, Patient } from '../types';
 
+interface CreateNoteFormProps {
+  queryRef: QueryRef<GetPatientsData, OperationVariables, 'complete' | 'streaming' | 'empty'>;
+  onSubmit: (payload: CreateNotePayload) => void;
+  isPending: boolean;
+  errorMsg: string | null;
+}
+
+// Inner component — useReadQuery suspends until patients are loaded
+const CreateNoteForm: React.FC<CreateNoteFormProps> = ({
+  queryRef,
+  onSubmit,
+  isPending,
+  errorMsg,
+}) => {
+  const { i18n } = useTranslation();
+  const { data, error } = useReadQuery(queryRef);
+
+  if (error) {
+    return (
+      <Box className="bg-rose-50 border border-rose-200 p-6 rounded-xl text-center max-w-2xl mx-auto w-full">
+        <Typography variant="body1" className="text-rose-600 font-medium">
+          {i18n.t('dashboard.errorMsgPatients', { message: error.message })}
+        </Typography>
+      </Box>
+    );
+  }
+
+  if (!data?.patients) return null;
+
+  return (
+    <NoteForm
+      patients={data.patients as Patient[]}
+      onSubmit={onSubmit}
+      isSubmitting={isPending}
+      submitError={errorMsg}
+    />
+  );
+};
+
+// Outer shell — starts query without suspending, owns the Suspense boundary and mutation
 export const CreateNote: React.FC = () => {
   const { i18n } = useTranslation();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
 
-  // Fetch patients list for dropdown selection
-  const {
-    data: patients,
-    isLoading: isPatientsLoading,
-    isError: isPatientsError,
-    error: patientsError,
-  } = useQuery({
-    queryKey: ['patients'],
-    queryFn: getPatients,
+  const [queryRef] = useBackgroundQuery<GetPatientsData>(GET_PATIENTS, {
+    errorPolicy: 'all',
   });
 
-  // Note creation mutation
-  const { mutate, isPending } = useMutation({
-    mutationFn: createNote,
-    onSuccess: () => {
-      // Invalidate notes list cache and redirect home
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
-      navigate('/');
+  // Note creation mutation — refetch notes list on success
+  const [createNote, { loading: isPending }] = useMutation(CREATE_NOTE, {
+    refetchQueries: [{ query: GET_NOTES }],
+    onCompleted: (data) => {
+      // Redirect to the newly created note's detail page
+      if (data?.createNote?.id) {
+        navigate(`/notes/${data.createNote.id}`);
+      } else {
+        navigate('/');
+      }
     },
-    onError: (err: Error) => {
+    onError: (err) => {
       setErrorMsg(err.message || 'An error occurred while creating the note.');
     },
   });
 
+  const handleSubmit = (payload: CreateNotePayload) => {
+    if (payload.inputType === 'text') {
+      createNote({
+        variables: {
+          input: {
+            patientId: payload.patientId,
+            inputType: payload.inputType.toUpperCase(),
+            rawText: payload.rawText,
+          },
+        },
+      });
+    } else {
+      createNote({
+        variables: {
+          input: {
+            patientId: payload.patientId,
+            inputType: payload.inputType.toUpperCase(),
+          },
+          audioFile: payload.audioFile,
+        },
+      });
+    }
+  };
+
   return (
-    <Container maxWidth="lg" className="py-8 flex flex-col gap-6">
-      {/* Back navigation */}
-      <Box className="flex items-center gap-2">
-        <Link to="/">
-          <Button
-            variant="text"
-            startIcon={<ArrowBackIcon />}
-            className="text-slate-400 hover:text-slate-200 capitalize font-medium"
-            disabled={isPending}
-          >
-            {i18n.t('dashboard.backBtn')}
-          </Button>
-        </Link>
+    <Container maxWidth="xl" className="px-0 py-2">
+      {/* Title */}
+      <Box className="max-w-2xl mx-auto w-full mb-6">
+        <Typography variant="h5" className="font-extrabold text-slate-100 tracking-tight">
+          {i18n.t('noteForm.title')}
+        </Typography>
+        <Typography variant="body2" className="text-slate-400 mt-1">
+          Record clinical notes via typing or uploading files.
+        </Typography>
       </Box>
 
-      {/* Main Form content */}
-      {isPatientsLoading ? (
-        <Box className="max-w-2xl mx-auto w-full mt-6">
-          <LoadingSkeleton variant="detail" />
-        </Box>
-      ) : isPatientsError ? (
-        <Box className="bg-rose-950/20 border border-rose-500/30 p-6 rounded-xl text-center max-w-2xl mx-auto w-full">
-          <Typography variant="body1" className="text-rose-400 font-medium">
-            {i18n.t('dashboard.errorMsgPatients', { message: (patientsError as Error).message })}
-          </Typography>
-        </Box>
-      ) : patients ? (
-        <NoteForm
-          patients={patients}
-          onSubmit={mutate}
-          isSubmitting={isPending}
-          submitError={errorMsg}
-        />
-      ) : null}
+      {/* Suspense boundary — skeleton shown while patients list loads */}
+      <Box className="max-w-2xl mx-auto w-full">
+        <Suspense fallback={<LoadingSkeleton variant="detail" />}>
+          <CreateNoteForm
+            queryRef={queryRef}
+            onSubmit={handleSubmit}
+            isPending={isPending}
+            errorMsg={errorMsg}
+          />
+        </Suspense>
+      </Box>
     </Container>
   );
 };

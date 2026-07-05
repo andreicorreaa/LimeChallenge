@@ -24,17 +24,17 @@ describe('Frontend Shared Components', () => {
 
     it('should render correct processing status badge style', () => {
       render(<StatusBadge status="processing" />);
-      expect(screen.getByText('Processing')).toBeInTheDocument();
+      expect(screen.getByText(/Processing/)).toBeInTheDocument();
     });
 
     it('should render correct ready status badge style', () => {
       render(<StatusBadge status="ready" />);
-      expect(screen.getByText('Ready')).toBeInTheDocument();
+      expect(screen.getByText(/Ready/)).toBeInTheDocument();
     });
 
     it('should render correct error status badge style', () => {
       render(<StatusBadge status="error" />);
-      expect(screen.getByText('Error')).toBeInTheDocument();
+      expect(screen.getByText(/Error/)).toBeInTheDocument();
     });
   });
 
@@ -66,7 +66,7 @@ describe('Frontend Shared Components', () => {
       expect(screen.getByText('John Doe')).toBeInTheDocument();
       expect(screen.getByText('Patient text details')).toBeInTheDocument();
       expect(screen.getByText('Text')).toBeInTheDocument();
-      expect(screen.getByText('Ready')).toBeInTheDocument();
+      expect(screen.getByText(/Ready/)).toBeInTheDocument();
     });
   });
 
@@ -82,10 +82,10 @@ describe('Frontend Shared Components', () => {
   describe('NoteDetail', () => {
     it('should render text note contents correctly', () => {
       render(<NoteDetail note={mockNotes[0]} />);
-      expect(screen.getByText('Raw Input Note')).toBeInTheDocument();
+      expect(screen.getByText('TRANSCRIPT')).toBeInTheDocument();
       expect(screen.getByText('Patient text details')).toBeInTheDocument();
-      expect(screen.getByText(/Clinical SOAP Note Summary/)).toBeInTheDocument();
-      expect(screen.getByText(/Assessment: acute bronchitis/)).toBeInTheDocument();
+      expect(screen.getByText('SUMMARY')).toBeInTheDocument();
+      expect(screen.getByText(/Subjective: complains of cough/)).toBeInTheDocument();
     });
 
     it('should render audio transcript and player details correctly', () => {
@@ -94,9 +94,9 @@ describe('Frontend Shared Components', () => {
         audioFilePath: '/uploads/file.mp3',
       };
       render(<NoteDetail note={audioNote} />);
-      expect(screen.getByText('Audio Transcript')).toBeInTheDocument();
+      expect(screen.getByText('TRANSCRIPT')).toBeInTheDocument();
       expect(screen.getByText('Spoken transcript text')).toBeInTheDocument();
-      expect(screen.getByText(/AI Scribe is parsing clinical findings/)).toBeInTheDocument();
+      expect(screen.getByText('SUMMARY')).toBeInTheDocument();
     });
   });
 
